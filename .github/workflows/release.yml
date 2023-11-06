@@ -1,0 +1,28 @@
+name: Release Builds
+
+on: push
+
+env:
+  # SME_DEPS_COMMON_VERSION: "2023.07.12"
+  DUNE_COPASI_VERSION: "ci_fixes_for_dune_copasi_2"
+
+jobs:
+  macos-arm64:
+    name: MacOS Arm64
+    runs-on: macos-arm64-ssc
+    env:
+      INSTALL_PREFIX: "/opt/smelibs"
+      SUDOCMD: "sudo"
+      # MACOSX_DEPLOYMENT_TARGET: "10.14"
+      OS_TARGET: "osx"
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - run: brew install llvm@17
+      - name: Build script
+        run: ./build.sh
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ./artefacts/*
