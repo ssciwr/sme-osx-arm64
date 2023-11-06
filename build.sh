@@ -1,77 +1,72 @@
 #!/bin/bash
 
+# MacOS Arm64 GUI/CLI build script
+
 set -e -x
 
-DEPSDIR=${INSTALL_PREFIX}
+# clone sme
+git clone --recursive --depth 1 -b ${SME_VERSION} https://github.com/spatial-model-editor/spatial-model-editor
+cd spatial-model-editor
 
-echo "SME_DEPS_COMMON_VERSION: ${SME_DEPS_COMMON_VERSION}"
-echo "DUNE_COPASI_VERSION: ${DUNE_COPASI_VERSION}"
-echo "PATH: $PATH"
-echo "MSYSTEM: $MSYSTEM"
+wget "https://github.com/ssciwr/sme-deps-osx-arm64/releases/download/${SME_DEPS_VERSION}/sme_deps_${OS_TARGET}.tgz"
+$SUDOCMD tar xf "sme_deps_${OS_TARGET}.tgz" -C /
 
-export CXX=/usr/local/opt/llvm/bin/clang++
-export CC=/usr/local/opt/llvm/bin/clang
-export LDFLAGS="-L/usr/local/opt/llvm/lib -L/usr/local/opt/llvm/lib/c++ -Wl,-rpath,/usr/local/opt/llvm/lib/c++"
-export CPPFLAGS="-I/usr/local/opt/llvm/include"
+# do build
+mkdir build
+cd build
+cmake .. \
+    -GNinja \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_PREFIX_PATH="/opt/smelibs;/opt/smelibs/lib/cmake" \
+    -DSME_LOG_LEVEL=OFF \
+    -DCMAKE_OSX_DEPLOYMENT_TARGET="11"
+ninja --verbose
 
-$CXX --version
+# run cpp tests
+time ./test/tests -as ~[gui]~[opengl] > tests.txt 2>&1 || (tail -n 10000 tests.txt && exit 1)
+tail -n 100 tests.txt
 
-# for now see if we can get this to compile using brew for any external deps:
-brew install muparser libtiff
-
-# echo "Downloading static libs for OS_TARGET: $OS_TARGET"
-# wget "https://github.com/spatial-model-editor/sme_deps_common/releases/download/${SME_DEPS_COMMON_VERSION}/sme_deps_common_${OS_TARGET}.tgz"
-# tar xf sme_deps_common_${OS_TARGET}.tgz
-# # copy libs to desired location: workaround for tar -C / not working on windows
-# if [[ "$OS_TARGET" == *"win"* ]]; then
-#     mv c/smelibs /c/
-#     # ls /c/smelibs
-# else
-#     $SUDOCMD mv opt/* /opt/
-#     # ls /opt/smelibs
-# fi
-
-# export vars for duneopts script to read
-export DUNE_COPASI_USE_STATIC_DEPS=ON
-export CMAKE_INSTALL_PREFIX=$DEPSDIR
-export MAKE_OPTIONS="-j2 VERBOSE=1"
-# -fexperimental-library for clang/libc++ to enable <execution>
-export CMAKE_CXX_FLAGS="'-fvisibility=hidden -fexperimental-library -L/usr/local/opt/llvm/lib -L/usr/local/opt/llvm/lib/c++ -Wl,-rpath,/usr/local/opt/llvm/lib/c++ -I/usr/local/opt/llvm/include'"
-export BUILD_SHARED_LIBS=OFF
-export CMAKE_DISABLE_FIND_PACKAGE_MPI=ON
-export DUNE_ENABLE_PYTHONBINDINGS=OFF
-export DUNE_PDELAB_ENABLE_TRACING=OFF
-export DUNE_COPASI_DISABLE_FETCH_PACKAGE_ExprTk=ON
-export DUNE_COPASI_DISABLE_FETCH_PACKAGE_parafields=ON
-export DUNE_COPASI_USE_PARAFIELDS=OFF
-if [[ $MSYSTEM ]]; then
-    # on windows add flags to support large object files
-    # https://stackoverflow.com/questions/16596876/object-file-has-too-many-sections
-    export CMAKE_CXX_FLAGS='-fvisibility=hidden -Wa,-mbig-obj'
-fi
-
-# clone dune-copasi
-git clone -b ${DUNE_COPASI_VERSION} --depth 1 https://gitlab.dune-project.org/copasi/dune-copasi.git
-cd dune-copasi
-
-# check opts
-bash dune-copasi.opts
-
-# build & install dune (excluding dune-copasi)
-bash .ci/setup_dune $PWD/dune-copasi.opts
-
-# build & install dune-copasi
-bash .ci/install $PWD/dune-copasi.opts
-
+# run python tests
+cd sme
+${PYTHON_EXE} -m pip install -r ../../sme/requirements-test.txt
+${PYTHON_EXE} -m pytest ../../sme/test -v
+PYTHONPATH=`pwd` ${PYTHON_EXE} ../../sme/test/sme_doctest.py -v
 cd ..
 
-# patch DUNE to skip deprecated FindPythonLibs/FindPythonInterp cmake that breaks subsequent FindPython cmake
-sed -i.bak 's|find_package(Python|#find_package(Python|' ${INSTALL_PREFIX}/share/dune/cmake/modules/DunePythonCommonMacros.cmake
-# also patch out any dune_python_find_package() calls as this can crash on windows
-sed -i.bak 's|dune_python_find_package(|#dune_python_find_package(|' ${INSTALL_PREFIX}/share/dune/cmake/modules/DunePythonCommonMacros.cmake
-cat ${INSTALL_PREFIX}/share/dune/cmake/modules/DunePythonCommonMacros.cmake
+# run benchmarks (~1 sec per benchmark, ~20secs total)
+time ./benchmark/benchmark 1
 
-# ls $DEPSDIR
+# strip binaries
+du -sh app/spatial-model-editor.app/Contents/MacOS/spatial-model-editor
+du -sh cli/spatial-cli
+
+strip app/spatial-model-editor.app/Contents/MacOS/spatial-model-editor
+strip cli/spatial-cli
+
+du -sh app/spatial-model-editor.app/Contents/MacOS/spatial-model-editor
+du -sh cli/spatial-cli
+
+# check dependencies of binaries
+otool -L app/spatial-model-editor.app/Contents/MacOS/spatial-model-editor
+otool -L cli/spatial-cli
+
+# create iconset & copy into app
+mkdir -p app/spatial-model-editor.app/Contents
+mkdir -p app/spatial-model-editor.app/Contents/Resources
+iconutil -c icns -o app/spatial-model-editor.app/Contents/Resources/icon.icns ../core/resources/icon.iconset
+
+# make dmg of binaries
+hdiutil create spatial-model-editor -fs HFS+ -srcfolder app/spatial-model-editor.app
+
+mkdir spatial-cli
+cp cli/spatial-cli spatial-cli/.
+hdiutil create spatial-cli -fs HFS+ -srcfolder spatial-cli
+
+# display version
+./app/spatial-model-editor.app/Contents/MacOS/spatial-model-editor -v
+
+# move binaries to artefacts/
+cd ..
 mkdir artefacts
-cd artefacts
-tar -zcf sme_deps_${OS_TARGET}.tgz $DEPSDIR/*
+mv build/spatial-model-editor.dmg artefacts/
+mv build/spatial-cli.dmg artefacts/

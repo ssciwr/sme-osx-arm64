@@ -3,8 +3,9 @@ name: Release Builds
 on: push
 
 env:
-  # SME_DEPS_COMMON_VERSION: "2023.07.12"
+  SME_DEPS_VERSION: "2023.11.10"
   DUNE_COPASI_VERSION: "ci_fixes_for_dune_copasi_2"
+  SME_VERSION: "dune_copasi_2"
 
 jobs:
   macos-arm64:
@@ -12,17 +13,57 @@ jobs:
     runs-on: macos-arm64-ssc
     env:
       INSTALL_PREFIX: "/opt/smelibs"
-      SUDOCMD: "sudo"
-      # MACOSX_DEPLOYMENT_TARGET: "10.14"
-      OS_TARGET: "osx"
+      SUDOCMD: "sudo -E"
+      MACOSX_DEPLOYMENT_TARGET: "11"
+      PYTHON_EXE: "/opt/homebrew/bin/python3.11"
+      OS_TARGET: "osx-arm64"
     defaults:
       run:
         shell: bash
     steps:
       - uses: actions/checkout@v4
-      - run: brew install llvm@17
-      - name: Build script
-        run: ./build.sh
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: "14.3"
+      - run: ./build.sh
       - uses: actions/upload-artifact@v3
         with:
           path: ./artefacts/*
+
+
+# todo: maybe add a token from spatial-model-editor repo to allow
+# this action to upload the compiled macos arm64 binary to the release there?
+# ditto for wheels? although doesn't work so well with pypi trusted publishing...
+
+  # release:
+  #   needs: [macos-arm64]
+  #   if: github.repository == 'ssciwr/sme-arm-mac' && github.event_name == 'push' && (startsWith(github.event.ref, 'refs/tags/') || github.ref == 'refs/heads/main')
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: write
+  #   steps:
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         name: artifact
+  #         path: binaries
+  #     - name: Upload binaries to latest pre-release
+  #       # if this is an untagged commit to main: upload binaries to github latest release
+  #       if: github.ref == 'refs/heads/main'
+  #       uses: svenstaro/upload-release-action@v2
+  #       with:
+  #         repo_token: ${{ secrets.GITHUB_TOKEN }}
+  #         file: binaries/*
+  #         tag: latest
+  #         overwrite: true
+  #         file_glob: true
+  #         prerelease: true
+  #     - name: Upload binaries to tagged release
+  #       # if this a tagged commit, upload binaries to github release for this tag
+  #       if: startsWith(github.event.ref, 'refs/tags/')
+  #       uses: svenstaro/upload-release-action@v2
+  #       with:
+  #         repo_token: ${{ secrets.GITHUB_TOKEN }}
+  #         file: binaries/*
+  #         tag: ${{ github.ref }}
+  #         overwrite: true
+  #         file_glob: true
