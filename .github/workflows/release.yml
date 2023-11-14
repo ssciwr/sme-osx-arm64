@@ -3,7 +3,7 @@ name: Release Builds
 on: push
 
 env:
-  SME_DEPS_VERSION: "2023.11.10"
+  SME_DEPS_VERSION: "2023.11.14"
   DUNE_COPASI_VERSION: "ci_fixes_for_dune_copasi_2"
   SME_VERSION: "dune_copasi_2"
 
