@@ -18,6 +18,7 @@ cmake .. \
     -GNinja \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_PREFIX_PATH="/opt/smelibs;/opt/smelibs/lib/cmake" \
+    -DCMAKE_CXX_FLAGS="-DNDEBUG" \
     -DSME_LOG_LEVEL=OFF \
     -DCMAKE_OSX_DEPLOYMENT_TARGET="11"
 ninja --verbose
