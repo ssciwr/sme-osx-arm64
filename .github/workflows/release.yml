@@ -3,10 +3,11 @@ name: Release Builds
 on: push
 
 env:
-  SME_DEPS_VERSION: "2023.11.14"
+  SME_DEPS_VERSION: "2023.11.17"
   SME_VERSION: "dune_copasi_2"
   CIBUILDWHEEL_VERSION: 2.16
   CIBW_BUILD_VERBOSITY: 3
+  CIBW_SKIP: "cp38-macosx_arm64" # temporary until native cp38 installed on runner: https://cibuildwheel.readthedocs.io/en/stable/faq/#macos-building-cpython-38-wheels-on-arm64
   INSTALL_PREFIX: "/opt/smelibs"
   SUDOCMD: "sudo -E"
   MACOSX_DEPLOYMENT_TARGET: "11"
