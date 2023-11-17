@@ -55,7 +55,7 @@ jobs:
 
   release:
     needs: [build, wheel]
-    if: github.repository == 'ssciwr/sme-osx-arm64' && github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/')
+    if: github.repository == 'ssciwr/sme-osx-arm64' && github.event_name == 'push' && (startsWith(github.event.ref, 'refs/tags/') || github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -64,6 +64,17 @@ jobs:
         with:
           name: artifact
           path: binaries
+      - name: Upload binaries to latest pre-release
+        # if this is an untagged commit to main: upload binaries to github latest release
+        if: github.ref == 'refs/heads/main'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: binaries/*
+          tag: latest
+          overwrite: true
+          file_glob: true
+          prerelease: true
       - name: Upload binaries to tagged release
         # if this a tagged commit, upload binaries to github release for this tag
         if: startsWith(github.event.ref, 'refs/tags/')
