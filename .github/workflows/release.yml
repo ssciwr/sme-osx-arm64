@@ -7,7 +7,7 @@ env:
   SME_VERSION: "dune_copasi_2"
   CIBUILDWHEEL_VERSION: 2.16
   CIBW_BUILD_VERBOSITY: 3
-  CIBW_SKIP: "cp38-macosx_arm64" # temporary until native cp38 installed on runner: https://cibuildwheel.readthedocs.io/en/stable/faq/#macos-building-cpython-38-wheels-on-arm64
+  CIBW_SKIP: 'pp*-*'
   INSTALL_PREFIX: "/opt/smelibs"
   SUDOCMD: "sudo -E"
   MACOSX_DEPLOYMENT_TARGET: "11"
@@ -51,7 +51,7 @@ jobs:
       - run: ./wheels.sh
       - uses: actions/upload-artifact@v3
         with:
-          path: ./wheelhouse/*.whl
+          path: ./spatial-model-editor/wheelhouse/*.whl
 
   release:
     needs: [build, wheel]
