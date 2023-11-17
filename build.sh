@@ -4,14 +4,8 @@
 
 set -e -x
 
-# clone sme
-git clone --recursive --depth 1 -b ${SME_VERSION} https://github.com/spatial-model-editor/spatial-model-editor
-cd spatial-model-editor
-
-wget "https://github.com/ssciwr/sme-deps-osx-arm64/releases/download/${SME_DEPS_VERSION}/sme_deps_${OS_TARGET}.tgz"
-$SUDOCMD tar xf "sme_deps_${OS_TARGET}.tgz" -C /
-
 # do build
+cd spatial-model-editor
 mkdir build
 cd build
 cmake .. \
@@ -29,9 +23,9 @@ tail -n 100 tests.txt
 
 # run python tests
 cd sme
-${PYTHON_EXE} -m pip install -r ../../sme/requirements-test.txt
-${PYTHON_EXE} -m pytest ../../sme/test -v
-PYTHONPATH=`pwd` ${PYTHON_EXE} ../../sme/test/sme_doctest.py -v
+python -m pip install -r ../../sme/requirements-test.txt
+python -m pytest ../../sme/test -v
+PYTHONPATH=`pwd` python ../../sme/test/sme_doctest.py -v
 cd ..
 
 # run benchmarks (~1 sec per benchmark, ~20secs total)
