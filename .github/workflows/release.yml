@@ -3,8 +3,8 @@ name: Release Builds
 on: push
 
 env:
-  SME_DEPS_VERSION: "2023.11.17"
-  SME_VERSION: "dune_copasi_2"
+  SME_DEPS_VERSION: "2023.11.21"
+  SME_VERSION: "main"
   CIBUILDWHEEL_VERSION: 2.16
   CIBW_BUILD_VERBOSITY: 3
   CIBW_SKIP: 'pp*-*'
