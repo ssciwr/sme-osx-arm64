@@ -65,14 +65,15 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: artifact
-          path: dist
+          path: binaries
+      - run: mkdir dist && mv binaries/*.whl dist/.
       - name: Upload binaries to latest pre-release
         # if this is an untagged commit to main: upload binaries to github latest release
         if: github.ref == 'refs/heads/main'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: dist/*
+          file: binaries/*
           tag: latest
           overwrite: true
           file_glob: true
@@ -83,7 +84,7 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: dist/*
+          file: binaries/*
           tag: ${{ github.ref }}
           overwrite: true
           file_glob: true
