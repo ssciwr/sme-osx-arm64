@@ -57,20 +57,22 @@ jobs:
     needs: [build, wheel]
     if: github.repository == 'ssciwr/sme-osx-arm64' && github.event_name == 'push' && (startsWith(github.event.ref, 'refs/tags/') || github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
+    environment: release
     permissions:
       contents: write
+      id-token: write
     steps:
       - uses: actions/download-artifact@v3
         with:
           name: artifact
-          path: binaries
+          path: dist
       - name: Upload binaries to latest pre-release
         # if this is an untagged commit to main: upload binaries to github latest release
         if: github.ref == 'refs/heads/main'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: binaries/*
+          file: dist/*
           tag: latest
           overwrite: true
           file_glob: true
@@ -81,7 +83,12 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: binaries/*
+          file: dist/*
           tag: ${{ github.ref }}
           overwrite: true
           file_glob: true
+      - name: Publish package distributions to PyPI
+        if: startsWith(github.event.ref, 'refs/tags/')
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          verbose: true
