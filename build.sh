@@ -64,9 +64,23 @@ security list-keychain -d user -s build.keychain
 security find-identity -v -p codesigning
 
 # sign app and binary
-/usr/bin/codesign --force -s "$MACOS_CERTIFICATE_NAME" app/spatial-model-editor.app -v
-/usr/bin/codesign --force -s "$MACOS_CERTIFICATE_NAME" cli/spatial-cli -v
+/usr/bin/codesign --force -s "$MACOS_CERTIFICATE_NAME" --options runtime app/spatial-model-editor.app -v
+/usr/bin/codesign --force -s "$MACOS_CERTIFICATE_NAME" --options runtime cli/spatial-cli -v
 /usr/bin/codesign -v app/spatial-model-editor.app
+
+# notarize app and binary
+# store credentials to avoid UI prompts for passwords
+xcrun notarytool store-credentials "notarytool-profile" --apple-id "$MACOS_NOTARIZATION_APPLE_ID" --team-id "$MACOS_NOTARIZATION_TEAM_ID" --password "$MACOS_NOTARIZATION_PWD"
+# zip GUI app
+ditto -c -k --keepParent "app/spatial-model-editor.app" "notarization_gui.zip"
+# submit to be notarized
+xcrun notarytool submit "notarization_gui.zip" --keychain-profile "notarytool-profile" --wait
+# attach resulting staple to app for offline validation
+xcrun stapler staple "app/spatial-model-editor.app"
+# repeat for CLI
+ditto -c -k --keepParent "cli/spatial-cli" "notarization_cli.zip"
+xcrun notarytool submit "notarization_cli.zip" --keychain-profile "notarytool-profile" --wait
+xcrun stapler staple "cli/spatial-cli"
 
 # make dmg of binaries
 hdiutil create spatial-model-editor -fs HFS+ -srcfolder app/spatial-model-editor.app
