@@ -54,6 +54,7 @@ iconutil -c icns -o app/spatial-model-editor.app/Contents/Resources/icon.icns ..
 # - https://localazy.com/blog/how-to-automatically-sign-macos-apps-using-github-actions
 # - https://federicoterzi.com/blog/automatic-code-signing-and-notarization-for-macos-apps-using-github-actions/
 # - https://docs.github.com/en/actions/deployment/deploying-xcode-applications/installing-an-apple-certificate-on-macos-runners-for-xcode-development
+# - https://gist.github.com/gubatron/5512786ff01885c32247ccecd4c3c369
 echo -n "$MACOS_CERTIFICATE" | base64 --decode -o certificate.p12
 security create-keychain -p "$KEYCHAIN_PWD" build.keychain
 security default-keychain -s build.keychain
@@ -64,8 +65,8 @@ security list-keychain -d user -s build.keychain
 security find-identity -v -p codesigning
 
 # sign app and binary
-/usr/bin/codesign --force -s "$MACOS_CERTIFICATE_NAME" --options runtime app/spatial-model-editor.app -v
-/usr/bin/codesign --force -s "$MACOS_CERTIFICATE_NAME" --options runtime cli/spatial-cli -v
+/usr/bin/codesign --force -s "$MACOS_CERTIFICATE_NAME" --options runtime --entitlements ../../entitlements.plist app/spatial-model-editor.app -v
+/usr/bin/codesign --force -s "$MACOS_CERTIFICATE_NAME" --options runtime --entitlements ../../entitlements.plist cli/spatial-cli -v
 /usr/bin/codesign -v app/spatial-model-editor.app
 
 # notarize app and binary
