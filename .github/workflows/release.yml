@@ -4,7 +4,7 @@ on: push
 
 env:
   SME_DEPS_VERSION: "2023.12.12"
-  SME_VERSION: "fix_923_voxel_rendering"
+  SME_VERSION: "main"
   CIBUILDWHEEL_VERSION: 2.16
   CIBW_BUILD_VERBOSITY: 3
   CIBW_SKIP: 'pp*-*'
