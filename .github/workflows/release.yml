@@ -3,8 +3,8 @@ name: Release Builds
 on: push
 
 env:
-  SME_DEPS_VERSION: "2023.11.21"
-  SME_VERSION: "1.5.0"
+  SME_DEPS_VERSION: "2023.12.12"
+  SME_VERSION: "fix_923_voxel_rendering"
   CIBUILDWHEEL_VERSION: 2.16
   CIBW_BUILD_VERBOSITY: 3
   CIBW_SKIP: 'pp*-*'

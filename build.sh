@@ -14,6 +14,9 @@ cmake .. \
     -DCMAKE_PREFIX_PATH="/opt/smelibs;/opt/smelibs/lib/cmake" \
     -DCMAKE_CXX_FLAGS="-DNDEBUG" \
     -DSME_LOG_LEVEL=OFF \
+    -DFREETYPE_LIBRARY_RELEASE=/opt/smelibs/lib/libQt6BundledFreetype.a \
+    -DFREETYPE_INCLUDE_DIR_freetype2=/opt/smelibs/include/QtFreetype \
+    -DFREETYPE_INCLUDE_DIR_ft2build=/opt/smelibs/include/QtFreetype \
     -DCMAKE_OSX_DEPLOYMENT_TARGET="11"
 ninja --verbose
 
