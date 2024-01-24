@@ -3,7 +3,7 @@ name: Release Builds
 on: push
 
 env:
-  SME_DEPS_VERSION: "2023.12.12"
+  SME_DEPS_VERSION: "2024.01.23"
   SME_VERSION: "main"
   CIBUILDWHEEL_VERSION: 2.16
   CIBW_BUILD_VERBOSITY: 3
@@ -30,7 +30,7 @@ jobs:
         shell: bash
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       - uses: maxim-lobanov/setup-xcode@v1
@@ -38,8 +38,9 @@ jobs:
           xcode-version: "14.3"
       - run: ./init.sh
       - run: ./build.sh
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
+          name: artifacts-macos-arm64-gui
           path: ./artefacts/*
   wheel:
     name: MacOS Arm64 sme Wheels
@@ -57,8 +58,9 @@ jobs:
           xcode-version: "14.3"
       - run: ./init.sh
       - run: ./wheels.sh
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
+          name: artifacts-macos-arm64-wheel
           path: ./spatial-model-editor/wheelhouse/*.whl
 
   release:
@@ -70,9 +72,10 @@ jobs:
       contents: write
       id-token: write
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
-          name: artifact
+          pattern: artifacts-*
+          merge-multiple: true
           path: binaries
       - run: mkdir dist && mv binaries/*.whl dist/.
       - name: Upload binaries to latest pre-release

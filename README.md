@@ -14,8 +14,8 @@ git push
 This will trigger GitHub Action builds which will compile the binaries. If the builds are sucessful, tag this commit with the spatial-model-editor version and push the tag to github:
 
 ```
-git tag YYYY.MM.DD
-git push origin YYYY.MM.DD
+git tag X.Y.Z
+git push origin X.Y.Z
 ```
 
-The tagged commit will trigger the builds again, but this time they will each upload the resulting binaries and wheels to the corresponding release on https://github.com/ssciwr/sme-osx-arm64/releases. When a release build is triggered in spatial-model-editor it will download these files from here and add them to the release.
+The tagged commit will trigger the builds again, but this time they will each upload the resulting binaries and wheels to the corresponding release on https://github.com/ssciwr/sme-osx-arm64/releases and on PyPI.
