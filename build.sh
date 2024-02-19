@@ -4,6 +4,10 @@
 
 set -e -x
 
+retry () {
+    "$@" || (sleep 1 && "$@") || (sleep 3 && "$@") || (sleep 5 && "$@") || echo "$* failed"
+}
+
 # do build
 cd spatial-model-editor
 mkdir build
@@ -87,7 +91,7 @@ ditto -c -k --keepParent "cli/spatial-cli" "notarization_cli.zip"
 xcrun notarytool submit "notarization_cli.zip" --keychain-profile "notarytool-profile" --wait
 
 # make dmg of GUI app
-hdiutil create spatial-model-editor -fs HFS+ -srcfolder app/spatial-model-editor.app
+retry hdiutil create spatial-model-editor -fs HFS+ -srcfolder app/spatial-model-editor.app
 # notarize & staple the dmg
 ditto -c -k --keepParent "spatial-model-editor.dmg" "notarization_gui_dmg.zip"
 xcrun notarytool submit "notarization_gui_dmg.zip" --keychain-profile "notarytool-profile" --wait
@@ -96,7 +100,7 @@ xcrun stapler staple "spatial-model-editor.dmg"
 # make dmg of CLI
 mkdir spatial-cli
 cp cli/spatial-cli spatial-cli/.
-hdiutil create spatial-cli -fs HFS+ -srcfolder spatial-cli
+retry hdiutil create spatial-cli -fs HFS+ -srcfolder spatial-cli
 # notarize & staple the dmg
 ditto -c -k --keepParent "spatial-cli.dmg" "notarization_cli_dmg.zip"
 xcrun notarytool submit "notarization_cli_dmg.zip" --keychain-profile "notarytool-profile" --wait
