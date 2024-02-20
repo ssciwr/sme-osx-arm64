@@ -5,7 +5,7 @@
 set -e -x
 
 export CMAKE_PREFIX_PATH="/opt/smelibs;/opt/smelibs/lib/cmake"
-export CMAKE_ARGS="-DCMAKE_OSX_DEPLOYMENT_TARGET=$MACOSX_DEPLOYMENT_TARGET -DCMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH -DSME_BUILD_CORE=off"
+export CMAKE_ARGS="-DSME_LOG_LEVEL=OFF -DCMAKE_CXX_FLAGS=-fvisibility=hidden -DCMAKE_OSX_DEPLOYMENT_TARGET=$MACOSX_DEPLOYMENT_TARGET -DCMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH -DSME_BUILD_CORE=off"
 
 # build and install sme::core
 cd spatial-model-editor
@@ -23,7 +23,7 @@ cmake .. \
     -DSME_LOG_LEVEL=OFF \
     -DSME_BUILD_CORE=on
 make -j5 core tests
-ctest -j5
+ctest -j5 --output-on-failure
 sudo make install
 cd ..
 
