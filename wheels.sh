@@ -20,6 +20,7 @@ cmake .. \
     -DSME_BUILD_GUI=off \
     -DSME_BUILD_PYTHON_LIBRARY=off \
     -DCMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH \
+    -DCMAKE_CXX_FLAGS="-fvisibility=hidden" \
     -DSME_LOG_LEVEL=OFF \
     -DSME_BUILD_CORE=on
 make -j5 core tests
