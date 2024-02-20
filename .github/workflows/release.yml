@@ -4,7 +4,7 @@ on: push
 
 env:
   SME_DEPS_VERSION: "2024.01.23"
-  SME_VERSION: "main"
+  SME_VERSION: "dune_cmake_debug"
   CIBUILDWHEEL_VERSION: 2.16
   CIBW_BUILD_VERBOSITY: 3
   CIBW_SKIP: 'pp*-*'
