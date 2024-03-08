@@ -3,7 +3,7 @@ name: Release Builds
 on: push
 
 env:
-  SME_DEPS_VERSION: "2024.02.01"
+  SME_DEPS_VERSION: "2024.03.07"
   SME_VERSION: "main"
   CIBUILDWHEEL_VERSION: 2.16
   CIBW_BUILD_VERBOSITY: 3
@@ -35,7 +35,7 @@ jobs:
           python-version: '3.11'
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: "14.3"
+          xcode-version: "15.3"
       - run: ./init.sh
       - run: ./build.sh
       - uses: actions/upload-artifact@v4
@@ -55,7 +55,7 @@ jobs:
           python-version: '3.11'
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: "14.3"
+          xcode-version: "15.3"
       - run: ./init.sh
       - run: ./wheels.sh
       - uses: actions/upload-artifact@v4
