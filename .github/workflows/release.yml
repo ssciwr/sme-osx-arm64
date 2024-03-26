@@ -3,8 +3,8 @@ name: Release Builds
 on: push
 
 env:
-  SME_DEPS_VERSION: "2024.03.07"
-  SME_VERSION: "main"
+  SME_DEPS_VERSION: "2024.03.26"
+  SME_VERSION: "release"
   CIBUILDWHEEL_VERSION: 2.16
   CIBW_BUILD_VERBOSITY: 3
   CIBW_SKIP: 'pp*-*'
