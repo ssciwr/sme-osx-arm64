@@ -3,9 +3,9 @@ name: Release Builds
 on: push
 
 env:
-  SME_DEPS_VERSION: "2024.03.26"
+  SME_DEPS_VERSION: "2024.04.18"
   SME_VERSION: "1.6.0"
-  CIBUILDWHEEL_VERSION: 2.16
+  CIBUILDWHEEL_VERSION: 2.17
   CIBW_BUILD_VERBOSITY: 3
   CIBW_SKIP: 'pp*-*'
   INSTALL_PREFIX: "/opt/smelibs"
@@ -30,6 +30,11 @@ jobs:
         shell: bash
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: "/Users/runner/Library/Caches/ccache"
+          key: ccache-${{ github.job }}-${{ runner.os }}-${{ github.sha }}
+          restore-keys: ccache-${{ github.job }}-${{ runner.os }}-
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -50,6 +55,11 @@ jobs:
         shell: bash
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: "/Users/runner/Library/Caches/ccache"
+          key: ccache-${{ github.job }}-${{ runner.os }}-${{ github.sha }}
+          restore-keys: ccache-${{ github.job }}-${{ runner.os }}-
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'

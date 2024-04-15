@@ -12,7 +12,9 @@ cd spatial-model-editor
 mkdir build
 cd build
 cmake .. \
+    -GNinja \
     -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
     -DCMAKE_INSTALL_PREFIX=/opt/smelibs \
     -DBUILD_TESTING=on \
     -DSME_BUILD_BENCHMARKS=off \
@@ -23,9 +25,9 @@ cmake .. \
     -DCMAKE_CXX_FLAGS="-fvisibility=hidden" \
     -DSME_LOG_LEVEL=OFF \
     -DSME_BUILD_CORE=on
-make -j5 core tests
+ninja core tests
 ctest -j5 --output-on-failure
-sudo make install
+sudo ninja install
 cd ..
 
 python -m pip install cibuildwheel==${CIBUILDWHEEL_VERSION}

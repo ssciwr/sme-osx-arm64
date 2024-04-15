@@ -15,6 +15,7 @@ cd build
 cmake .. \
     -GNinja \
     -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
     -DCMAKE_PREFIX_PATH="/opt/smelibs;/opt/smelibs/lib/cmake" \
     -DCMAKE_CXX_FLAGS="-DNDEBUG -fpic -fvisibility=hidden" \
     -DSME_LOG_LEVEL=OFF \
